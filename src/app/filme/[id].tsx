@@ -12,6 +12,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { fetchFilmById, type Film } from "@/services/films";
+import {
+  removeFilmFromList,
+  saveFilmToList,
+  subscribeToFilmInList,
+  type FilmListName,
+  type SavedFilm,
+} from "@/services/user-film-lists";
 
 export default function MovieDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,6 +27,10 @@ export default function MovieDetailsScreen() {
   const [error, setError] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [bannerFailed, setBannerFailed] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isOnWatchlist, setIsOnWatchlist] = useState(false);
+  const [savingList, setSavingList] = useState<FilmListName | null>(null);
+  const [listActionError, setListActionError] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -44,10 +55,63 @@ export default function MovieDetailsScreen() {
     return () => controller.abort();
   }, [id, loadAttempt]);
 
+  useEffect(() => {
+    if (!id) return;
+
+    const handleListError = (listError: Error) => setListActionError(listError.message);
+    const unsubscribeFavorites = subscribeToFilmInList(
+      "favorites",
+      id,
+      setIsFavorite,
+      handleListError,
+    );
+    const unsubscribeWatchlist = subscribeToFilmInList(
+      "watchlist",
+      id,
+      setIsOnWatchlist,
+      handleListError,
+    );
+
+    return () => {
+      unsubscribeFavorites();
+      unsubscribeWatchlist();
+    };
+  }, [id]);
+
   function retryLoading() {
     setError("");
     setLoading(true);
     setLoadAttempt((attempt) => attempt + 1);
+  }
+
+  async function toggleFilmList(listName: FilmListName, isSaved: boolean) {
+    if (!film || savingList) return;
+
+    setSavingList(listName);
+    setListActionError("");
+
+    try {
+      if (isSaved) {
+        await removeFilmFromList(listName, film.id);
+      } else {
+        const savedFilm: SavedFilm = {
+          title: film.title,
+          image: film.image,
+          release_date: film.release_date,
+          director: film.director,
+          savedAt: new Date().toISOString(),
+        };
+        await saveFilmToList(listName, film.id, savedFilm);
+      }
+    } catch (actionError) {
+      setListActionError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Não foi possível atualizar sua lista.",
+      );
+    } finally {
+      setSavingList(null);
+    }
   }
 
   if (!id) {
@@ -133,6 +197,44 @@ export default function MovieDetailsScreen() {
           </View>
         </View>
 
+        <View style={styles.listActions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: isFavorite, disabled: savingList !== null }}
+            disabled={savingList !== null}
+            onPress={() => void toggleFilmList("favorites", isFavorite)}
+            style={[styles.listButton, isFavorite && styles.listButtonSelected, savingList !== null && styles.disabledButton]}
+          >
+            <Text style={[styles.listButtonText, isFavorite && styles.listButtonTextSelected]}>
+              {savingList === "favorites"
+                ? "Salvando…"
+                : isFavorite
+                  ? "✓ Está nos Favoritos"
+                  : "♡ Adicionar aos Favoritos"}
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: isOnWatchlist, disabled: savingList !== null }}
+            disabled={savingList !== null}
+            onPress={() => void toggleFilmList("watchlist", isOnWatchlist)}
+            style={[styles.listButton, isOnWatchlist && styles.listButtonSelected, savingList !== null && styles.disabledButton]}
+          >
+            <Text style={[styles.listButtonText, isOnWatchlist && styles.listButtonTextSelected]}>
+              {savingList === "watchlist"
+                ? "Salvando…"
+                : isOnWatchlist
+                  ? "✓ Está em Quero Assistir"
+                  : "＋ Quero Assistir"}
+            </Text>
+          </Pressable>
+        </View>
+        {listActionError ? (
+          <Text accessibilityRole="alert" style={styles.listActionError}>
+            {listActionError}
+          </Text>
+        ) : null}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sinopse</Text>
           <Text style={styles.description}>{film.description}</Text>
@@ -184,6 +286,13 @@ const styles = StyleSheet.create({
   factValue: { color: "#26352A", fontSize: 16, fontWeight: "700" },
   factLabel: { color: "#697366", fontSize: 12 },
   factDivider: { width: 1, height: 34, backgroundColor: "#CFD7C8" },
+  listActions: { gap: 9, marginTop: 14 },
+  listButton: { minHeight: 48, alignItems: "center", justifyContent: "center", paddingHorizontal: 14, borderRadius: 14, backgroundColor: "#E9EDE3" },
+  listButtonSelected: { backgroundColor: "#62745B" },
+  listButtonText: { color: "#536052", fontSize: 14, fontWeight: "700", textAlign: "center" },
+  listButtonTextSelected: { color: "#FFFFFF" },
+  disabledButton: { opacity: 0.65 },
+  listActionError: { color: "#8A4635", fontSize: 13, lineHeight: 19, marginTop: 8 },
   section: { marginTop: 24, gap: 8 },
   sectionTitle: { color: "#26352A", fontSize: 19, fontWeight: "700" },
   description: { color: "#536052", fontSize: 15, lineHeight: 23 },
