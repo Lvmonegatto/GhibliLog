@@ -1,11 +1,8 @@
-import { BaseScreen } from "@/components/base-screen";
+import { useLocalSearchParams } from "expo-router";
+
+import { ReviewFormScreen } from "@/components/review-form-screen";
 
 export default function NewReviewScreen() {
-  return (
-    <BaseScreen
-      section="Diário"
-      title="Nova resenha"
-      description="Use esta tela para registrar uma avaliação e suas impressões do filme."
-    />
-  );
+  const { filmId } = useLocalSearchParams<{ filmId?: string }>();
+  return <ReviewFormScreen filmId={filmId} />;
 }

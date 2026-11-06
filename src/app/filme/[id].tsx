@@ -235,6 +235,14 @@ export default function MovieDetailsScreen() {
           </Text>
         ) : null}
 
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push({ pathname: "/resenha/nova", params: { filmId: film.id } })}
+          style={styles.reviewButton}
+        >
+          <Text style={styles.reviewButtonLabel}>Escrever resenha</Text>
+        </Pressable>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sinopse</Text>
           <Text style={styles.description}>{film.description}</Text>
@@ -293,6 +301,8 @@ const styles = StyleSheet.create({
   listButtonTextSelected: { color: "#FFFFFF" },
   disabledButton: { opacity: 0.65 },
   listActionError: { color: "#8A4635", fontSize: 13, lineHeight: 19, marginTop: 8 },
+  reviewButton: { minHeight: 46, alignItems: "center", justifyContent: "center", marginTop: 9, paddingHorizontal: 14, borderWidth: 1, borderColor: "#62745B", borderRadius: 14 },
+  reviewButtonLabel: { color: "#536052", fontSize: 14, fontWeight: "700" },
   section: { marginTop: 24, gap: 8 },
   sectionTitle: { color: "#26352A", fontSize: 19, fontWeight: "700" },
   description: { color: "#536052", fontSize: 15, lineHeight: 23 },
