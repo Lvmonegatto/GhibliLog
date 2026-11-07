@@ -1,13 +1,23 @@
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator
+} from 'react-native';
+
+import firebase from './config/config';
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
+import TelaCatalogo from './screens/TelaCatalogo';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Ionicons } from '@expo/vector-icons';
-
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -160,7 +170,7 @@ function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Catálogo" component={CatalogScreen} />
+      <Tab.Screen name="Catálogo" component={TelaCatalogo} />
       <Tab.Screen name="Favoritos" component={FavoritesScreen} />
       <Tab.Screen name="Quero Assistir" component={WatchlistScreen} />
       <Tab.Screen name="Diário" component={DiaryScreen} />
@@ -171,6 +181,36 @@ function TabNavigator() {
 
 // Navegação principal
 export default function App() {
+  const [usuario, setUsuario] = useState(null);
+  const [verificandoAutenticacao, setVerificandoAutenticacao] = useState(true);
+
+  useEffect(() => {
+    const cancelarObservacao = firebase.auth().onAuthStateChanged(
+      usuarioAtual => {
+        setUsuario(usuarioAtual);
+        setVerificandoAutenticacao(false);
+      }
+    );
+
+    return cancelarObservacao;
+  }, []);
+
+  if (verificandoAutenticacao) {
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.background
+      }}>
+        <ActivityIndicator
+          size="large"
+          color={COLORS.primary}
+        />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -187,26 +227,44 @@ export default function App() {
           },
         }}
       >
-        <Stack.Screen
-          name="Principal"
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
+        {usuario ? (
+          <>
+            <Stack.Screen
+              name="Principal"
+              component={TabNavigator}
+              options={{ headerShown: false }}
+            />
 
-        <Stack.Screen
-          name="Detalhes do Filme"
-          component={FilmDetailScreen}
-        />
+            <Stack.Screen
+              name="Detalhes do Filme"
+              component={FilmDetailScreen}
+            />
 
-        <Stack.Screen
-          name="Nova Resenha"
-          component={ReviewFormScreen}
-        />
+            <Stack.Screen
+              name="Nova Resenha"
+              component={ReviewFormScreen}
+            />
 
-        <Stack.Screen
-          name="Detalhes da Resenha"
-          component={ReviewDetailScreen}
-        />
+            <Stack.Screen
+              name="Detalhes da Resenha"
+              component={ReviewDetailScreen}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="Cadastro"
+              component={RegisterScreen}
+              options={{ title: 'Criar conta' }}
+            />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

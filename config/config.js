@@ -1,5 +1,5 @@
+import firebase from 'firebase';
 
-import * as firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
 
@@ -13,7 +13,6 @@ const firebaseConfig = {
   appId: "1:320256440311:web:48b19f3d19daa913fd20f2"
 };
 
-// Inicializa o Firebase apenas uma vez
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
