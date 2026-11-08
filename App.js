@@ -1,17 +1,17 @@
-
 import React, { useEffect, useState } from 'react';
 
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator
-} from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
 import firebase from './config/config';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import TelaCatalogo from './screens/TelaCatalogo';
+import TelaDetalhesFilme from './screens/TelaDetalhesFilme';
+import TelaFavoritos from './screens/TelaFavoritos';
+import TelaQueroAssistir from './screens/TelaQueroAssistir';
+import TelaFormularioResenha from './screens/TelaFormularioResenha';
+import TelaDiario from './screens/TelaDiario';
+import TelaDetalhesResenha from './screens/TelaDetalhesResenha';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -30,23 +30,12 @@ const COLORS = {
   text: '#333333',
 };
 
-// Componente reutilizável para as telas provisórias
 function BaseScreen({ title, description }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
     </View>
-  );
-}
-
-// Telas principais
-function CatalogScreen() {
-  return (
-    <BaseScreen
-      title="Catálogo"
-      description="Explore os filmes do Studio Ghibli."
-    />
   );
 }
 
@@ -86,25 +75,6 @@ function StatisticsScreen() {
   );
 }
 
-// Telas secundárias
-function FilmDetailScreen() {
-  return (
-    <BaseScreen
-      title="Detalhes do Filme"
-      description="Informações completas sobre o filme."
-    />
-  );
-}
-
-function ReviewFormScreen() {
-  return (
-    <BaseScreen
-      title="Nova Resenha"
-      description="Registre sua experiência com o filme."
-    />
-  );
-}
-
 function ReviewDetailScreen() {
   return (
     <BaseScreen
@@ -114,7 +84,6 @@ function ReviewDetailScreen() {
   );
 }
 
-// Navegação das cinco abas
 function TabNavigator() {
   return (
     <Tab.Navigator
@@ -160,53 +129,43 @@ function TabNavigator() {
               iconName = 'ellipse-outline';
           }
 
-          return (
-            <Ionicons
-              name={iconName}
-              size={size}
-              color={color}
-            />
-          );
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
-      })}
-    >
+      })}>
       <Tab.Screen name="Catálogo" component={TelaCatalogo} />
-      <Tab.Screen name="Favoritos" component={FavoritesScreen} />
-      <Tab.Screen name="Quero Assistir" component={WatchlistScreen} />
-      <Tab.Screen name="Diário" component={DiaryScreen} />
+      <Tab.Screen name="Favoritos" component={TelaFavoritos} />
+      <Tab.Screen name="Quero Assistir" component={TelaQueroAssistir} />
+      <Tab.Screen name="Diário" component={TelaDiario} />
       <Tab.Screen name="Estatísticas" component={StatisticsScreen} />
     </Tab.Navigator>
   );
 }
 
-// Navegação principal
 export default function App() {
   const [usuario, setUsuario] = useState(null);
   const [verificandoAutenticacao, setVerificandoAutenticacao] = useState(true);
 
   useEffect(() => {
-    const cancelarObservacao = firebase.auth().onAuthStateChanged(
-      usuarioAtual => {
+    const cancelarObservacao = firebase
+      .auth()
+      .onAuthStateChanged((usuarioAtual) => {
         setUsuario(usuarioAtual);
         setVerificandoAutenticacao(false);
-      }
-    );
+      });
 
     return cancelarObservacao;
   }, []);
 
   if (verificandoAutenticacao) {
     return (
-      <View style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.background
-      }}>
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primary}
-        />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: COLORS.background,
+        }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -225,8 +184,7 @@ export default function App() {
           contentStyle: {
             backgroundColor: COLORS.background,
           },
-        }}
-      >
+        }}>
         {usuario ? (
           <>
             <Stack.Screen
@@ -237,17 +195,18 @@ export default function App() {
 
             <Stack.Screen
               name="Detalhes do Filme"
-              component={FilmDetailScreen}
+              component={TelaDetalhesFilme}
             />
 
             <Stack.Screen
               name="Nova Resenha"
-              component={ReviewFormScreen}
+              component={TelaFormularioResenha}
+              options={{ title: 'Nova Resenha' }}
             />
-
             <Stack.Screen
               name="Detalhes da Resenha"
-              component={ReviewDetailScreen}
+              component={TelaDetalhesResenha}
+              options={{ title: 'Detalhes da Resenha' }}
             />
           </>
         ) : (

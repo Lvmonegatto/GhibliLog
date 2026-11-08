@@ -34,7 +34,6 @@ async function register() {
   setLoading(true);
 
   try {
-    // ETAPA 1: Criar usuário no Authentication
     console.log('2. Criando usuário no Authentication...');
 
     const credential = await firebase.auth()
@@ -51,7 +50,6 @@ async function register() {
       firebase.auth().currentUser ? 'SIM' : 'NÃO'
     );
 
-    // ETAPA 2: Salvar perfil no Realtime Database
     console.log('5. Salvando perfil no banco...');
 
     await firebase.database()
