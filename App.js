@@ -12,6 +12,8 @@ import TelaQueroAssistir from './screens/TelaQueroAssistir';
 import TelaFormularioResenha from './screens/TelaFormularioResenha';
 import TelaDiario from './screens/TelaDiario';
 import TelaDetalhesResenha from './screens/TelaDetalhesResenha';
+import TelaEstatisticas from './screens/TelaEstatisticas';
+import TelaPerfil from './screens/TelaPerfil';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,7 +23,6 @@ import { Ionicons } from '@expo/vector-icons';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Cores do aplicativo
 const COLORS = {
   background: '#F5F1E8',
   primary: '#355C4B',
@@ -125,6 +126,9 @@ function TabNavigator() {
             case 'Estatísticas':
               iconName = 'stats-chart-outline';
               break;
+              case 'Perfil':
+              iconName = 'person-circle-outline';
+              break;
             default:
               iconName = 'ellipse-outline';
           }
@@ -136,7 +140,8 @@ function TabNavigator() {
       <Tab.Screen name="Favoritos" component={TelaFavoritos} />
       <Tab.Screen name="Quero Assistir" component={TelaQueroAssistir} />
       <Tab.Screen name="Diário" component={TelaDiario} />
-      <Tab.Screen name="Estatísticas" component={StatisticsScreen} />
+      <Tab.Screen name="Estatísticas" component={TelaEstatisticas} />
+      <Tab.Screen name="Perfil" component={TelaPerfil} />
     </Tab.Navigator>
   );
 }

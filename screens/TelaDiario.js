@@ -1,8 +1,5 @@
 
-import React, {
-  useCallback,
-  useState,
-} from 'react';
+import React, { useCallback, useState } from 'react';
 
 import {
   View,
@@ -17,12 +14,8 @@ import {
 
 import { useFocusEffect } from '@react-navigation/native';
 
-import {
-  buscarResenhas,
-  removerResenha,
-} from '../services/gerenciadorResenhas';
+import { buscarResenhas } from '../services/gerenciadorResenhas';
 
-// Formata a data para o padrão brasileiro
 function formatarData(data) {
   if (!data) {
     return 'Data não informada';
@@ -40,9 +33,7 @@ function formatarData(data) {
 export default function TelaDiario({ navigation }) {
   const [resenhas, setResenhas] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  const [excluindoId, setExcluindoId] = useState(null);
 
-  // Atualiza as resenhas sempre que a aba recebe foco
   useFocusEffect(
     useCallback(() => {
       let ativo = true;
@@ -54,7 +45,6 @@ export default function TelaDiario({ navigation }) {
           const resultado = await buscarResenhas();
 
           if (ativo) {
-            // Ordena da resenha mais recente para a mais antiga
             resultado.sort((a, b) => {
               const dataA = new Date(
                 a.createdAt || a.watchedAt
@@ -93,64 +83,10 @@ export default function TelaDiario({ navigation }) {
     }, [])
   );
 
-  // Abre os detalhes da resenha selecionada
   function abrirDetalhes(resenha) {
     navigation.navigate('Detalhes da Resenha', {
       resenha,
     });
-  }
-
-  // Exclui a resenha do Firebase
-  async function executarExclusao(resenha) {
-    if (excluindoId) {
-      return;
-    }
-
-    setExcluindoId(resenha.id);
-
-    try {
-      await removerResenha(resenha.id);
-
-      // Remove o cartão imediatamente da tela
-      setResenhas(resenhasAtuais =>
-        resenhasAtuais.filter(
-          item => item.id !== resenha.id
-        )
-      );
-
-      Alert.alert(
-        'Sucesso',
-        'Sua resenha foi excluída do diário.'
-      );
-    } catch (error) {
-      console.log('Erro ao excluir resenha:', error);
-
-      Alert.alert(
-        'Erro',
-        error.message || 'Não foi possível excluir a resenha.'
-      );
-    } finally {
-      setExcluindoId(null);
-    }
-  }
-
-  // Solicita confirmação antes de excluir
-  function confirmarExclusao(resenha) {
-    Alert.alert(
-      'Excluir resenha',
-      `Deseja realmente excluir sua resenha de "${resenha.filmTitle}"?`,
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => executarExclusao(resenha),
-        },
-      ]
-    );
   }
 
   return (
@@ -213,11 +149,9 @@ export default function TelaDiario({ navigation }) {
                 key={resenha.id}
                 style={styles.card}
               >
-                {/* Área clicável para abrir os detalhes */}
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => abrirDetalhes(resenha)}
-                  disabled={excluindoId === resenha.id}
                 >
                   <View style={styles.cabecalhoCard}>
                     {resenha.filmImage ? (
@@ -270,31 +204,6 @@ export default function TelaDiario({ navigation }) {
                     Ver detalhes →
                   </Text>
                 </TouchableOpacity>
-
-                {/* Botão de exclusão */}
-                <View style={styles.areaExcluir}>
-                  <TouchableOpacity
-                    style={[
-                      styles.botaoExcluir,
-                      excluindoId === resenha.id &&
-                        styles.botaoDesabilitado,
-                    ]}
-                    activeOpacity={0.7}
-                    onPress={() => confirmarExclusao(resenha)}
-                    disabled={excluindoId !== null}
-                  >
-                    {excluindoId === resenha.id ? (
-                      <ActivityIndicator
-                        size="small"
-                        color="#C65B65"
-                      />
-                    ) : (
-                      <Text style={styles.textoExcluir}>
-                        Excluir resenha
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
               </View>
             ))}
           </View>
@@ -484,30 +393,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 15,
     textAlign: 'right',
-  },
-
-  areaExcluir: {
-    alignItems: 'flex-end',
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
-    paddingTop: 8,
-  },
-
-  botaoExcluir: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    minWidth: 110,
-    alignItems: 'center',
-  },
-
-  textoExcluir: {
-    color: '#C65B65',
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-
-  botaoDesabilitado: {
-    opacity: 0.5,
   },
 });
