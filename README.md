@@ -199,6 +199,10 @@ O serviço `gerenciadorFilmes.js` concentra as operações das listas de filmes.
 
 8. Abra o aplicativo pelo Expo Go ou por um emulador.
 
+### Link de acesso para Snack
+
+- https://snack.expo.dev/@xermoneys-dev/projeto-final-ghiblilog
+
 ### Configuração do Firebase
 
 O arquivo `config/config.js` contém a inicialização do Firebase. Utilize a configuração do seu próprio projeto e não publique credenciais privadas ou arquivos de acesso administrativo. A chave de configuração de um aplicativo Firebase cliente não substitui regras de segurança: o acesso aos dados deve ser protegido pelas regras do Realtime Database.
