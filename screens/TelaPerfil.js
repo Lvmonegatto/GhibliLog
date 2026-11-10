@@ -28,6 +28,17 @@ const COLORS = {
   danger: '#B34E54',
 };
 
+const AVATARES = [
+  { id: 'leaf', icon: 'leaf', label: 'Natureza', background: '#DDE9D5' },
+  { id: 'paw', icon: 'paw', label: 'Animal', background: '#F2E1CC' },
+  { id: 'moon', icon: 'moon', label: 'Lua', background: '#E5E0F2' },
+  { id: 'star', icon: 'star', label: 'Estrela', background: '#F5EBCB' },
+  { id: 'flower', icon: 'flower', label: 'Flor', background: '#F2DDE5' },
+  { id: 'planet', icon: 'planet', label: 'Espaço', background: '#DCE5F0' },
+  { id: 'fish', icon: 'fish', label: 'Mar', background: '#D8EAE9' },
+  { id: 'cloud', icon: 'cloud', label: 'Nuvem', background: '#E8E8E8' },
+];
+
 export default function TelaPerfil() {
   const [nome, setNome] = useState('');
   const [nomeEditado, setNomeEditado] = useState('');
@@ -36,13 +47,25 @@ export default function TelaPerfil() {
   const [totalFilmes, setTotalFilmes] = useState(0);
   const [totalResenhas, setTotalResenhas] = useState(0);
 
+  const [avatar, setAvatar] = useState('leaf');
+  const [avatarSelecionado, setAvatarSelecionado] = useState('leaf');
+
   const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState(false);
+  const [editandoAvatar, setEditandoAvatar] = useState(false);
+
   const [salvando, setSalvando] = useState(false);
+  const [salvandoAvatar, setSalvandoAvatar] = useState(false);
   const [confirmandoSaida, setConfirmandoSaida] = useState(false);
 
   const [mensagem, setMensagem] = useState('');
   const [tipoMensagem, setTipoMensagem] = useState('');
+
+  const avatarAtual =
+    AVATARES.find((item) => item.id === avatar) || AVATARES[0];
+
+  const avatarTemporario =
+    AVATARES.find((item) => item.id === avatarSelecionado) || AVATARES[0];
 
   const carregarPerfil = useCallback(async () => {
     try {
@@ -68,8 +91,12 @@ export default function TelaPerfil() {
         usuario.displayName ||
         'Usuário';
 
+      const avatarSalvo = perfil?.avatar || 'leaf';
+
       setNome(nomeUsuario);
       setNomeEditado(nomeUsuario);
+      setAvatar(avatarSalvo);
+      setAvatarSelecionado(avatarSalvo);
 
       const resenhas = await buscarResenhas();
 
@@ -97,6 +124,44 @@ export default function TelaPerfil() {
       carregarPerfil();
     }, [carregarPerfil])
   );
+
+  async function salvarAvatar() {
+    const usuario = firebase.auth().currentUser;
+
+    if (!usuario || salvandoAvatar) return;
+
+    setSalvandoAvatar(true);
+    setMensagem('');
+
+    try {
+      await firebase.database()
+        .ref('users/' + usuario.uid + '/profile')
+        .update({
+          avatar: avatarSelecionado,
+        });
+
+      setAvatar(avatarSelecionado);
+      setEditandoAvatar(false);
+
+      setMensagem('Avatar atualizado com sucesso!');
+      setTipoMensagem('sucesso');
+
+    } catch (error) {
+      console.log('Erro ao atualizar avatar:', error);
+
+      setMensagem('Não foi possível atualizar seu avatar.');
+      setTipoMensagem('erro');
+
+    } finally {
+      setSalvandoAvatar(false);
+    }
+  }
+
+  function cancelarAvatar() {
+    setAvatarSelecionado(avatar);
+    setEditandoAvatar(false);
+    setMensagem('');
+  }
 
   async function salvarNome() {
     const novoNome = nomeEditado.trim();
@@ -152,6 +217,7 @@ export default function TelaPerfil() {
   async function sairDaConta() {
     try {
       await firebase.auth().signOut();
+
     } catch (error) {
       console.log('Erro ao sair da conta:', error);
 
@@ -180,26 +246,122 @@ export default function TelaPerfil() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.cabecalho}>
-        <Text style={styles.titulo}>
-          Meu Perfil
-        </Text>
+        <Text style={styles.titulo}>Meu Perfil</Text>
 
         <Text style={styles.subtitulo}>
           Suas informações e atividades no GhibliLog.
         </Text>
       </View>
 
-      {/* Identificação do usuário */}
+      
       <View style={styles.cartaoPerfil}>
-        <View style={styles.avatar}>
+
+        
+        <View
+          style={[
+            styles.avatar,
+            { backgroundColor: avatarAtual.background },
+          ]}
+        >
           <Ionicons
-            name="person"
+            name={avatarAtual.icon}
             size={48}
             color={COLORS.primary}
           />
         </View>
 
-        {!editando ? (
+        
+        {editandoAvatar ? (
+          <View style={styles.areaAvatares}>
+            <Text style={styles.tituloAvatares}>
+              Escolha seu avatar
+            </Text>
+
+            <Text style={styles.subtituloAvatares}>
+              Selecione uma opção para personalizar seu perfil.
+            </Text>
+
+            <View style={styles.gradeAvatares}>
+              {AVATARES.map((item) => {
+                const selecionado =
+                  avatarSelecionado === item.id;
+
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[
+                      styles.opcaoAvatar,
+                      selecionado && styles.avatarSelecionado,
+                    ]}
+                    onPress={() => setAvatarSelecionado(item.id)}
+                    disabled={salvandoAvatar}
+                    activeOpacity={0.75}
+                  >
+                    <View
+                      style={[
+                        styles.iconeOpcaoAvatar,
+                        { backgroundColor: item.background },
+                      ]}
+                    >
+                      <Ionicons
+                        name={item.icon}
+                        size={27}
+                        color={COLORS.primary}
+                      />
+                    </View>
+
+                    <Text
+                      style={[
+                        styles.nomeOpcaoAvatar,
+                        selecionado && styles.nomeAvatarSelecionado,
+                      ]}
+                    >
+                      {item.label}
+                    </Text>
+
+                    {selecionado && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={17}
+                        color={COLORS.primary}
+                        style={styles.marcaAvatar}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <View style={styles.acoesEdicao}>
+              <TouchableOpacity
+                style={styles.botaoCancelar}
+                onPress={cancelarAvatar}
+                disabled={salvandoAvatar}
+              >
+                <Text style={styles.textoCancelar}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.botaoSalvar}
+                onPress={salvarAvatar}
+                disabled={salvandoAvatar}
+              >
+                {salvandoAvatar ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={COLORS.white}
+                  />
+                ) : (
+                  <Text style={styles.textoSalvar}>
+                    Salvar avatar
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
           <>
             <Text style={styles.nomeUsuario}>
               {nome}
@@ -209,26 +371,53 @@ export default function TelaPerfil() {
               {email}
             </Text>
 
-            <TouchableOpacity
-              style={styles.botaoEditar}
-              onPress={() => {
-                setNomeEditado(nome);
-                setMensagem('');
-                setEditando(true);
-              }}
-            >
-              <Ionicons
-                name="pencil-outline"
-                size={16}
-                color={COLORS.primary}
-              />
+            
+            <View style={styles.acoesPerfil}>
+              <TouchableOpacity
+                style={styles.botaoEditar}
+                onPress={() => {
+                  setAvatarSelecionado(avatar);
+                  setMensagem('');
+                  setEditandoAvatar(true);
+                  setEditando(false);
+                }}
+              >
+                <Ionicons
+                  name="color-palette-outline"
+                  size={17}
+                  color={COLORS.primary}
+                />
 
-              <Text style={styles.textoBotaoEditar}>
-                Editar nome
-              </Text>
-            </TouchableOpacity>
+                <Text style={styles.textoBotaoEditar}>
+                  Alterar avatar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.botaoEditar}
+                onPress={() => {
+                  setNomeEditado(nome);
+                  setMensagem('');
+                  setEditando(true);
+                  setEditandoAvatar(false);
+                }}
+              >
+                <Ionicons
+                  name="pencil-outline"
+                  size={16}
+                  color={COLORS.primary}
+                />
+
+                <Text style={styles.textoBotaoEditar}>
+                  Editar nome
+                </Text>
+              </TouchableOpacity>
+            </View>
           </>
-        ) : (
+        )}
+
+        
+        {editando && (
           <View style={styles.areaEdicao}>
             <Text style={styles.rotuloCampo}>
               Nome de exibição
@@ -260,7 +449,10 @@ export default function TelaPerfil() {
                 disabled={salvando}
               >
                 {salvando ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator
+                    size="small"
+                    color={COLORS.white}
+                  />
                 ) : (
                   <Text style={styles.textoSalvar}>
                     Salvar
@@ -272,7 +464,7 @@ export default function TelaPerfil() {
         )}
       </View>
 
-      {/* Mensagens de retorno */}
+      
       {mensagem ? (
         <View
           style={[
@@ -288,7 +480,7 @@ export default function TelaPerfil() {
         </View>
       ) : null}
 
-      {/* Resumo da atividade */}
+      
       <Text style={styles.tituloSecao}>
         Minha atividade
       </Text>
@@ -327,7 +519,7 @@ export default function TelaPerfil() {
         </View>
       </View>
 
-      {/* Informações da conta */}
+      
       <View style={styles.cartaoInformacoes}>
         <Text style={styles.tituloSecao}>
           Informações da conta
@@ -370,7 +562,7 @@ export default function TelaPerfil() {
         </View>
       </View>
 
-      {/* Sair da conta */}
+      
       <View style={styles.areaSair}>
         {!confirmandoSaida ? (
           <TouchableOpacity
@@ -479,7 +671,6 @@ const styles = StyleSheet.create({
     width: 95,
     height: 95,
     borderRadius: 48,
-    backgroundColor: '#DDE5D8',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 15,
@@ -498,11 +689,19 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
+  acoesPerfil: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 10,
+  },
+
   botaoEditar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    marginTop: 17,
+    marginTop: 7,
     padding: 10,
   },
 
@@ -512,9 +711,77 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  areaAvatares: {
+    width: '100%',
+    alignItems: 'center',
+  },
+
+  tituloAvatares: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 6,
+  },
+
+  subtituloAvatares: {
+    fontSize: 12,
+    color: COLORS.muted,
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+
+  gradeAvatares: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+
+  opcaoAvatar: {
+    width: '21%',
+    minWidth: 65,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+
+  avatarSelecionado: {
+    borderColor: COLORS.primary,
+    backgroundColor: '#F0F4ED',
+  },
+
+  iconeOpcaoAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  nomeOpcaoAvatar: {
+    fontSize: 10,
+    color: COLORS.muted,
+    marginTop: 6,
+  },
+
+  nomeAvatarSelecionado: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
+  },
+
+  marcaAvatar: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+  },
+
   areaEdicao: {
     width: '100%',
-    marginTop: 5,
+    marginTop: 15,
   },
 
   rotuloCampo: {

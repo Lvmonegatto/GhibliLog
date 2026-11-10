@@ -12,6 +12,11 @@ import {
   Alert,
 } from 'react-native';
 
+import {
+  vibrarConfirmacao,
+  vibrarExclusao,
+  vibrarSelecao,
+} from '../services/feedbackVibracao';
 import SeletorData from '../components/SeletorData';
 import {
   buscarResenhaPorId,
@@ -150,6 +155,8 @@ export default function TelaDetalhesResenha({ route, navigation }) {
 
       setEditando(false);
 
+      vibrarConfirmacao();
+
       Alert.alert('Sucesso', 'Sua resenha foi atualizada!');
     } catch (error) {
       console.log('Erro ao atualizar resenha:', error);
@@ -189,11 +196,10 @@ export default function TelaDetalhesResenha({ route, navigation }) {
     setCarregando(true);
 
     try {
-      console.log('Excluindo resenha:', resenha.id);
 
       await removerResenha(resenha.id);
 
-      console.log('Resenha excluída com sucesso!');
+      vibrarExclusao();
 
       setMostrarConfirmacao(false);
 
@@ -283,7 +289,10 @@ export default function TelaDetalhesResenha({ route, navigation }) {
               {[1, 2, 3, 4, 5].map((numero) => (
                 <TouchableOpacity
                   key={numero}
-                  onPress={() => setNota(numero)}
+                  onPress={() => {
+                    setNota(numero);
+                    vibrarSelecao();
+                  }}
                   disabled={carregando}>
                   <Text
                     style={[

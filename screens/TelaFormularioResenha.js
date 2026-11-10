@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import SeletorData from '../components/SeletorData';
 import { adicionarResenha } from '../services/gerenciadorResenhas';
+import { vibrarConfirmacao, vibrarSelecao } from '../services/feedbackVibracao';
 
 function obterDataAtual() {
   const hoje = new Date();
@@ -92,7 +93,7 @@ export default function TelaFormularioResenha({ route, navigation }) {
         reviewText: texto.trim(),
         watchedAt: dataAssistida,
       });
-
+      vibrarConfirmacao();
       setSalvo(true);
     } catch (error) {
       console.log('Erro ao salvar resenha:', error);
@@ -174,7 +175,10 @@ export default function TelaFormularioResenha({ route, navigation }) {
           {[1, 2, 3, 4, 5].map((numero) => (
             <TouchableOpacity
               key={numero}
-              onPress={() => setNota(numero)}
+              onPress={() => {
+                setNota(numero);
+                vibrarSelecao();
+              }}
               activeOpacity={0.7}>
               <Text
                 style={[styles.estrela, numero <= nota && styles.estrelaAtiva]}>

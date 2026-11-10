@@ -38,7 +38,6 @@ function calcularAtividadeMensal(resenhas) {
 
   const meses = [];
 
-  // Prepara os últimos seis meses, incluindo o atual.
   for (let i = 5; i >= 0; i--) {
     const data = new Date(
       hoje.getFullYear(),
@@ -58,7 +57,6 @@ function calcularAtividadeMensal(resenhas) {
     });
   }
 
-  // Conta filmes distintos em cada mês.
   resenhas.forEach((resenha) => {
     const dataTexto = resenha.watchedAt || resenha.createdAt;
 
@@ -234,7 +232,7 @@ export default function TelaEstatisticas() {
         </View>
       ) : (
         <>
-          {/* Resumo geral */}
+          
           <View style={styles.gradeResumo}>
             <View style={styles.cartaoResumo}>
               <Ionicons
@@ -269,7 +267,7 @@ export default function TelaEstatisticas() {
             </View>
           </View>
 
-          {/* Média das avaliações */}
+          
           <View style={styles.cartaoMedia}>
             <View>
               <Text style={styles.rotuloMedia}>
@@ -291,7 +289,7 @@ export default function TelaEstatisticas() {
             </View>
           </View>
 
-          {/* Atividade mensal */}
+          
           <View style={styles.secao}>
             <Text style={styles.tituloSecao}>
               Atividade mensal
@@ -342,7 +340,7 @@ export default function TelaEstatisticas() {
             </Text>
           </View>
 
-          {/* Distribuição das avaliações */}
+          
           <View style={styles.secao}>
             <Text style={styles.tituloSecao}>
               Distribuição das avaliações
@@ -389,7 +387,7 @@ export default function TelaEstatisticas() {
             ))}
           </View>
 
-          {/* Melhores avaliações */}
+          
           <View style={styles.secao}>
             <Text style={styles.tituloSecao}>
               Melhores avaliações
@@ -573,7 +571,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  // Gráfico mensal
   grafico: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -620,7 +617,6 @@ const styles = StyleSheet.create({
     marginTop: 17,
   },
 
-  // Distribuição das notas
   linhaNota: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -661,7 +657,6 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
   },
 
-  // Melhores filmes
   linhaFilme: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -12,7 +12,7 @@
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5",
-    "firebase": "*",
+    "firebase": "8.10.1",
     "@expo/vector-icons": "^15.0.3",
     "react-native-paper": "4.9.2",
     "react-native-screens": "~4.16.0",

@@ -47,7 +47,6 @@ export default function TelaCatalogo({ navigation }) {
     buscarFilmes();
   }, []);
 
-  // Obtém os diretores disponíveis na API.
   const diretores = [
     'Todos',
     ...new Set(filmes.map((filme) => filme.director).filter(Boolean)),
@@ -57,7 +56,6 @@ export default function TelaCatalogo({ navigation }) {
     return a.localeCompare(b);
   });
 
-  // Aplica pesquisa, filtro e ordenação.
   const filmesFiltrados = filmes
     .filter((filme) => {
       const titulo = (filme.title || '').toLowerCase();
@@ -172,7 +170,7 @@ export default function TelaCatalogo({ navigation }) {
         </Text>
       </View>
 
-      {/* Campo de pesquisa */}
+      
       <View style={styles.areaPesquisa}>
         <Text style={styles.iconePesquisa}>⌕</Text>
 
@@ -187,7 +185,7 @@ export default function TelaCatalogo({ navigation }) {
         />
       </View>
 
-      {/* Filtro por diretor */}
+      
       <View style={styles.areaFiltros}>
         <Text style={styles.tituloFiltro}>Filtrar por diretor</Text>
 
@@ -219,7 +217,7 @@ export default function TelaCatalogo({ navigation }) {
         </ScrollView>
       </View>
 
-      {/* Ordenação */}
+      
       <View style={styles.areaOrdenacao}>
         <Text style={styles.tituloFiltro}>Ordenar por título</Text>
 
@@ -269,7 +267,7 @@ export default function TelaCatalogo({ navigation }) {
         </View>
       </View>
 
-      {/* Lista de filmes */}
+      
       <FlatList
         data={filmesFiltrados}
         keyExtractor={(item) => item.id}

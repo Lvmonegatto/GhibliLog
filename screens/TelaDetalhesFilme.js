@@ -11,6 +11,8 @@ import {
   Alert,
 } from 'react-native';
 
+import { vibrarAdicao, vibrarRemocao } from '../services/feedbackVibracao';
+
 import {
   adicionarFilme,
   removerFilme,
@@ -55,10 +57,14 @@ export default function TelaDetalhesFilme({ route, navigation }) {
         await removerFilme(lista, filme.id);
         atualizarEstado(false);
 
+        vibrarRemocao();
+
         Alert.alert('Sucesso', 'Filme removido da sua lista.');
       } else {
         await adicionarFilme(lista, filme);
         atualizarEstado(true);
+
+        vibrarAdicao();
 
         Alert.alert('Sucesso', 'Filme adicionado à sua lista!');
       }
@@ -211,7 +217,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: 'transparent',
   },
-  
+
   posterAlternativo: {
     height: 300,
     backgroundColor: '#DDE5D8',

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 
 import firebase from './config/config';
 import LoginScreen from './screens/LoginScreen';
@@ -30,60 +30,6 @@ const COLORS = {
   white: '#FFFFFF',
   text: '#333333',
 };
-
-function BaseScreen({ title, description }) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
-    </View>
-  );
-}
-
-function FavoritesScreen() {
-  return (
-    <BaseScreen
-      title="Favoritos"
-      description="Seus filmes favoritos aparecerão aqui."
-    />
-  );
-}
-
-function WatchlistScreen() {
-  return (
-    <BaseScreen
-      title="Quero Assistir"
-      description="Organize os filmes que deseja assistir."
-    />
-  );
-}
-
-function DiaryScreen() {
-  return (
-    <BaseScreen
-      title="Meu Diário"
-      description="Suas resenhas e experiências com os filmes."
-    />
-  );
-}
-
-function StatisticsScreen() {
-  return (
-    <BaseScreen
-      title="Estatísticas"
-      description="Acompanhe suas atividades no GhibliLog."
-    />
-  );
-}
-
-function ReviewDetailScreen() {
-  return (
-    <BaseScreen
-      title="Detalhes da Resenha"
-      description="Visualize sua resenha."
-    />
-  );
-}
 
 function TabNavigator() {
   return (
@@ -233,27 +179,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-    marginBottom: 12,
-  },
-
-  description: {
-    fontSize: 15,
-    color: COLORS.text,
-    textAlign: 'center',
-    lineHeight: 23,
-  },
-});
