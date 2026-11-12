@@ -209,9 +209,11 @@ O arquivo `config/config.js` contém a inicialização do Firebase. Utilize a co
 
 O projeto utiliza a API namespaced do Firebase JS SDK **8.10.1**. Por isso, mantenha essa versão ao instalar as dependências, evitando atualizar automaticamente para uma versão incompatível com os imports utilizados.
 
-## Imagens do aplicativo
+## Demonstração do aplicativo
 
-![alt text](image.png) ![alt text](image-1.png)
+A seguir, uma demonstração do GhibliLog em funcionamento:
+
+![Demonstração do GhibliLog](assets/demonstracao.gif)
 
 ## Aprendizados e próximos passos
 
